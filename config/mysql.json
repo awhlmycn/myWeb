@@ -1,0 +1,7 @@
+{
+    "host" : "rm-uf6145w2x8wf1073go.mysql.rds.aliyuncs.com",
+    "port" : "3306",
+    "user" : "testadmin",
+    "password" : "testadmin@2017",
+    "database" : "v3_cloud_test"
+}
