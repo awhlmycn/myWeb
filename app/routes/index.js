@@ -2,185 +2,180 @@ const express = require('express');
 let router = express.Router();
 const runDao = require('../dao/proDao.js');
 const lele = require( '../tool/lele.js')
+const _ = require( 'underscore');
+const validate = require( 'validate.js' );
+const valJson = { presence: true };
 module.exports = router;
 
-/*
-	1.用户登陆
-	post请求
-	{ "UserInfo": { "userid": userid, "password": password } }
- */
-router.all( '/UserLogin', async function( req, res )
+const doudizhu = require( 'doudizhu' );
+const newPai = doudizhu.getShuffleCards();
+console.log( "dianshu--->" + getPoint( 1 ));
+function getPoint( id )
 {
-	var data = lele.empty( req.query )? req.body:req.query;
-	var data = {
-		UserInfo:{
-			userid : '18905715566',
-			password : '76c52202fc98c8f8ab89140d051d8344'
-		}
-	};
-	var UserInfo = data.UserInfo;
-	if( lele.empty( UserInfo ) || lele.empty( UserInfo.userid ) || lele.empty( UserInfo.password ))
-	{
-		res.json( { status : 0, result : '数据有误' });
-		return;
-	}
+    id = parseInt(id)
+        var point = Math.ceil(id / 4)
+        console.log("point", point );
+        if (id >= 0 && id <= 51) {
+            if( point >= 0 && point <=1 )
+            {
+                return 'A'
+            } 
+            else if (point >= 2 && point <= 10) {
+                return point.toString()
+            } else {
+                switch (point) {
+                    case 11:
+                        return 'J'
+                        break
+                    case 12:
+                        return 'Q'
+                        break
+                    case 13:
+                        return 'K'
+                        break
+                    default:
+                        throw '牌id不合法'
+                }
+            }
+        } else if (id === 52) {
+            return 'Swang'
+        } else if (id === 53) {
+            return 'Bwang'
+        } else {
+            throw '牌id不合法'
+        }
+    }
+
+
+console.log( "getHUase-->" + getSuits( 12));
+function getSuits( id )
+{
+        id = parseInt(id)
+        var suits = Math.ceil(id % 4)
+
+        if (id >= 0 && id <= 51) {
+            return suits.toString()
+        } else if (id === 52) {
+            return 'Swang'
+        } else if (id === 53) {
+            return 'Bwang'
+        } else {
+            throw '牌id不合法'
+        }
+    }
+
+
+
+/*
+	1。这个菜单列表
+	http://cloudstoreapi.eshinetest.cn:10100/sapi/IAccounts/menuAll
+	post
+	{"brandId":"100001","accountId":"153"}
+ */
+router.get( '/menuAll', async function( req, res )
+{
 	try{
-		var bsSQL = "select userid,username,password,mobile,sex,email,birthday,Status FROM oss_users where userid='" + UserInfo.userid + "'";
-		let tmpUserInfo = await runDao.query( bsSQL );
-		if( tmpUserInfo.length == 0 )
-		{
-			res.json({ status: 3, "result": "用户不存在!" } );
-			return;	
+		var data = lele.empty( req.query )? req.body : req.query;
+		data = {
+			p : {
+				brandId : '100224',
+				accountId : '1022'
+			}
 		}
-		var userinfo = tmpUserInfo[0];
-		if( userinfo.password != UserInfo.password )
+		if( lele.empty( data ) || validate( data.p, { brandId: valJson, accountId: valJson } ) )
 		{
-			res.json( { status : 2, result : '用户口令错误' } );
-			return;
+		    res.json( { 'errMsg' : '数据异常' + data.p });
+		    return;
 		}
-		bsSQL = 'select roleid from oss_users where userid="' + UserInfo.userid + '"';
-		let _UserRole = await runDao.query( bsSQL );
-		if( _UserRole.length == 0 )
+		var brandId = data.p.brandId;
+		var accountId = data.p.accountId;
+		var accountInfo = await runDao.select( 'account', 'id=' + accountId, 'id,brand_list,role_list');
+		if( accountInfo.length == 0 )
 		{
-			res.json({ status: 1, "result": "用户没有任何权限!" } );
-			return;
+		    res.json({ 'errMsg' : "用户不存在" } );
+		    return;
 		}
-		var result = _UserRole[0];
-
-
-		let _UserInfo = 
-
-		res.json( _UserRole );
+		var account = accountInfo[0];
+		var roles = lele.empty( account.role_list )? [] : JSON.parse( account.role_list );
+		var brands = lele.empty( account.brand_list )? [] : JSON.parse( account.brand_list );
+		var brandFlag = _.filter(brands, (item) => {
+		    return item.brandId == brandId;
+		});
+		var roleFlag = _.filter(roles, (item) => {
+		    return item.brandId == brandId;
+		})
+		var brandRoles = _.pluck( roleFlag, "id" );
+		var sql = 'select id,name,`keys`,module_list,allow_login_business from account_role where id in(' + brandRoles.join( ',') + ')';
+		var rolesInfo = await runDao.query( sql );
+		if( lele.empty( rolesInfo ) )
+		{
+		    res.json( { roles: [], process: 0, rights: [] });
+		    return;
+		}
+		var moduleIds = [];
+		rolesInfo.forEach( function( role )
+		{
+		    var moduleList = role.module_list && JSON.parse( role.module_list );
+		    moduleList && moduleList.forEach(( item ) => {
+		        moduleIds.push(item.id);
+		    })
+		});
+		var moduleSql = 'select id,type_id,name,routers,icon,sorts from modules where status=1 and id in (' + moduleIds.join( ',' ) + ')';
+		var modules = await runDao.query( moduleSql );
+		if( modules.length == 0 )
+		{
+		    return res.json( { roles: roles, process: 0, rights: [] } );
+		}
+		var moduleTypeIds = _.pluck( modules, 'type_id');
+		var modelTypeSql = 'select id,name,icon,client_id,client_name from modules_type where status=1 and id in (' + moduleTypeIds.join( ',' ) + ') order by sorts asc';
+		var types = await runDao.query( modelTypeSql );
+		var newTypes = [];
+		types && types.forEach( ( iType ) =>{
+		    var imodules = _.filter(modules, (item) => {
+		        return item.type_id == iType.id;
+		    })
+		    if (!_.isEmpty(imodules)) {
+		        iType.modules = imodules;
+		        newTypes.push( iType );
+		    }
+		})
+		var cHome = [{ icon: '', id: 0, name: "首页", routers: 'home.index', typeId: 0 }];
+		var home = { id: 0, name: "首页", icon: 'http://eshine-image-test.oss-cn-hangzhou.aliyuncs.com/ModuleIcon/主页.png', clientId: 2, clientName: "营运后台系统", modules: cHome };           
+		var stores = await runDao.select( 'store', 'brand_id=' + brandId );      
+		var shopProcess = 0;
+		if( lele.empty( stores ) ) shopProcess = 1;
+		newTypes.unshift( home );
+		return res.json( { roles: roles, process: shopProcess, rights: newTypes } );
 	}
 	catch( err )
 	{
-		res.json( { status : 0, result : err });
+		res.json({ 'errMsg' : err.toString() });
 	}
 });
 
-
-
-// router.get( '/ceshi', async function( req, res )
-// {
-// 	var UserInfo = {
-// 		userid : '18905715566',
-// 		password : '76c52202fc98c8f8ab89140d051d8344'
-// 	};
-//     var _UserRole = { Result: 0 };
-//     var _UserInfo = { Result: 0 };
-//     var bsSQL = "select distinct a.userid,a.status,b.roleid,a.password from oss_users a,oss_roleuser b where a.userid = b.userid and a.userid='" + UserInfo.userid + "'";
-//     var result = await runDao.query( bsSQL );
-
-//     bsSQL = "SELECT userid,username,password,mobile,sex,email,birthday,Status FROM oss_users where userid='" + UserInfo.userid + "'";
-//     var userinfo = await runDao.query( bsSQL );
-//     if( userinfo.length == 0 )
-//     {
-//     	res.json( { status : 3, result : '用户不存在！'});
-//     	return;
-//     }
-//     if( userinfo[0].password != UserInfo.password )
-//     {
-//     	res.json( { status : 2, result : '用户口令错误'});
-//     	return;
-//     }
-//     if( result.length == 0 )
-//     {
-//     	res.json( { status : 1, result : '用户没有任何权限！'});
-//     	return;
-//     }
-//     var _userroleid = '';
-//     var _rolename = '';
-//     if( result.length == 0 && userinfo[0].Status == 3 )
-//     {
-//         _userroleid = '999999'; ///Guest用户
-//     }
-//     else
-//     {
-//         _userroleid = result[0].roleid;
-//     }
-//     var UserInfo = {};
-//     var _userinfo = {};
-//     var _roleinfo = {};
-//     var _desktopinfo = {};
-//     var _notifyinfo = {};
-//     var _rolelist = {};
-
-
-                    
-                    
-                    
-//                     var bsSQL = "select * from oss_users where userid='" + UserInfo.userid + "'";
-//                     ps.push(ExecuteSyncSQLResult(bsSQL, _userinfo));
-
-//                     // var bsSQL = "select a.roleid,b.rolename from oss_roleuser a, oss_roles b where a.roleid = b.roleid and userid='" + UserInfo.userid + "'";
-//                     var bsSQL = '';
-//                     if (_userroleid == '999999') {
-//                         bsSQL = "select roleid,rolename from  oss_roles  where roleid='" + _userroleid + "'";
-//                     } else {
-//                         bsSQL = "select a.roleid,b.rolename from oss_roleuser a, oss_roles b where a.roleid = b.roleid and userid='" + UserInfo.userid + "'";
-//                     }
-//                     ps.push(ExecuteSyncSQLResult(bsSQL, _rolelist));
-
-//                     bsSQL = "select moduleid,modulename,url from oss_modules where moduleid in (select moduleid from oss_roledetail where roleid like '" + _userroleid + "%') or isdefault = 1;";
-//                     ps.push(ExecuteSyncSQLResult(bsSQL, _roleinfo));
-
-//                     bsSQL = "select a.userid,a.moduleid,a.modulestyle,b.url from oss_userdesktop a,oss_modules b where a.moduleid = b.moduleid and a.userid =  '" + UserInfo.userid + "';";
-//                     ps.push(ExecuteSyncSQLResult(bsSQL, _desktopinfo));
-
-//                     Promise.all(ps).then(function() {
-//                         var UserInfo = {};
-//                         UserInfo.userinfo = _userinfo.Result[0];
-//                         UserInfo.userinfo.applyroleid = _rolelist.Result[0].roleid;
-
-//                         UserInfo.userinfo.rolename = "";
-//                         _rolelist.Result.forEach(function(item) {
-//                             UserInfo.userinfo.rolename += item.rolename + " ";
-//                         });
-
-
-//                         var modulelist = [];
-//                         _roleinfo.Result.forEach(function(item) {
-//                             var finditem = _.find(_desktopinfo.Result, function(_detail) {
-//                                 return _detail.moduleid == item.moduleid;
-//                             });
-//                             if (finditem) {
-//                                 item.atDesktop = 1;
-//                             } else {
-//                                 item.atDesktop = 0;
-//                             }
-//                             modulelist.push(item);
-//                         });
-
-//                         UserInfo.userrole = modulelist;
-//                         UserInfo.userdesktop = _desktopinfo.Result;
-//                         UserInfo.rolelist = _rolelist.Result;
-
-//                         cb(null, {
-//                             status: 1,
-//                             "result": UserInfo
-//                         });
-//                         EWTRACE("UserLogin End");
-//                     }, function(err) {
-//                         cb(err, {
-//                             status: 0,
-//                             "result": ""
-//                         });
-//                         EWTRACEIFY(err);
-//                         EWTRACE("UserLogin End");
-//                     });
-//                 }
-//             }
-//         }, function(err) {
-//             cb(err, {
-//                 status: 0,
-//                 "result": ""
-//             });
-//             EWTRACEIFY(err);
-//             EWTRACE("UserLogin End");
-//         });
-
-//     }
-// });
-
-
-
+/**
+ * 2.员工列表
+ * employeeList
+ * http://cloudstoreapi.eshinetest.cn:10100/sapi/IAccounts/employeeList
+ * {"brandId":"100002","storeId":"330106"}
+ */
+router.get( '/employeeList', async function( req, res )
+{
+	var data = lele.empty( req.query )? req.body : req.query;
+		data = {
+			p : {
+				brandId : '100224',
+				storeId : '330865'
+			}
+		}
+	var brandId = data.p.brandId;
+	var storeId = data.p.storeId;
+	var levelId = data.p.levelId || 0;
+	var where = { brand_list: { like: '%' + brandId + '%' } };
+	var storeAll = ["{\"brandId\":", "\"" + brandId + "\"", ",", "\"storeAll\":1}"].join("");
+	var storeList = ["{\"brandId\":", "\"" + brandId + "\"", ",", "\"id\":\"" + storeId + "\"}"].join("");
+	where.and = [];
+	where.and.push({ or: [{ store_list: { like: '%' + storeList + '%' } }, { brand_list: { like: '%' + storeAll + '%' } }] });
+	console.log("where",JSON.stringify( where ));
+	res.send( 'oj');
+});

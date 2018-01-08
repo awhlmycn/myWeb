@@ -17,6 +17,7 @@
   },
   "devDependencies": {
     "async": "^2.6.0",
+    "elasticsearch": "^14.0.0",
     "jsonwebtoken": "^8.1.0",
     "mysql": "^2.15.0",
     "nodemon": "^1.14.3",

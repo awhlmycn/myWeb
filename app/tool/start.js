@@ -14,6 +14,10 @@ global.mysqlConfig = mysqlConfig;
 // global.db = new mysql( 100, 'database', mysqlConfig );
 global.dbPro = new mysqlPro( 1, 'database', mysqlConfig );
 
+// var myesSql = require( '../mysql/essql.js' );
+// var esDb = new myesSql();
+// console.log( "esDb", esDb );
+
 const roleDao = require( '../dao/roleDao.js');
 
 //启动运行
@@ -33,7 +37,7 @@ start.router = function( app )
     app.use( '/sapi/IAccountRoles', require( '../routes/iAccountRole.js' ) );
     app.use( '/sapi/IAccounts', require( '../routes/iAccounts.js' ) );
     // app.use('/users', require('../routes/users') );
-
+    app.use( '/gm', require( '../routes/gm.js' ) );
     // 没有找到页面
     app.use( '/', function( req, res )
     {
