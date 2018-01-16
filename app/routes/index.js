@@ -7,65 +7,55 @@ const validate = require( 'validate.js' );
 const valJson = { presence: true };
 module.exports = router;
 
-const doudizhu = require( 'doudizhu' );
-const newPai = doudizhu.getShuffleCards();
-console.log( "dianshu--->" + getPoint( 1 ));
-function getPoint( id )
+const request = require( 'request');
+var component_appid = 'wxa31a6a54e5b6a0b6';
+var component_appsecret = '9e53beb21bcd68e3ecebffa1f5602ec7';
+
+var getComponentAccessToken = function()
 {
-    id = parseInt(id)
-        var point = Math.ceil(id / 4)
-        console.log("point", point );
-        if (id >= 0 && id <= 51) {
-            if( point >= 0 && point <=1 )
-            {
-                return 'A'
-            } 
-            else if (point >= 2 && point <= 10) {
-                return point.toString()
-            } else {
-                switch (point) {
-                    case 11:
-                        return 'J'
-                        break
-                    case 12:
-                        return 'Q'
-                        break
-                    case 13:
-                        return 'K'
-                        break
-                    default:
-                        throw '牌id不合法'
-                }
-            }
-        } else if (id === 52) {
-            return 'Swang'
-        } else if (id === 53) {
-            return 'Bwang'
-        } else {
-            throw '牌id不合法'
-        }
+    var param = {
+        component_appid : component_appid//第三方平台appid
     }
+    const component_access_token = '';
+    var options = {
+        method : 'POST',
+        url : 'https://api.weixin.qq.com/cgi-bin/component/api_create_preauthcode?component_access_token=' + component_access_token,
+        body : JSON.stringify( param )
+    };
+    request( options, function( err, response, body )
+    {
+        body = JSON.parse( body );
+        console.log( " body ", body );
+        /**
+         * /错误
+         *  errcode: 61011,
+            errmsg: 'invalid component hint: [42yX809472994]' }
+         */
+        /*
+        正确的返回结果
+        {
+            "component_access_token":"61W3mEpU66027wgNZ_MhGHNQDHnFATkDa9-2llqrMBjUwxRSNPbVsMmyD-yq8wZETSoE5NQgecigDrSHkPtIYA", 
+            "expires_in":7200
+        }
+        */
+    });
+}
 
+var webot = require('webot');
 
-console.log( "getHUase-->" + getSuits( 12));
-function getSuits( id )
+router.get( '/ceshi', function( req, res )
 {
-        id = parseInt(id)
-        var suits = Math.ceil(id % 4)
-
-        if (id >= 0 && id <= 51) {
-            return suits.toString()
-        } else if (id === 52) {
-            return 'Swang'
-        } else if (id === 53) {
-            return 'Bwang'
-        } else {
-            throw '牌id不合法'
-        }
+	var message = req.query.message;
+    message = {
+        text : 'hello1111',
+        event : 'subscribe11111'
     }
-
-
-
+    webot.reply( message, function( err, info )
+    {
+        if (err) return res.json({ r: err });
+        res.json({ r: 0, reply: info.reply });
+    });
+});
 /*
 	1。这个菜单列表
 	http://cloudstoreapi.eshinetest.cn:10100/sapi/IAccounts/menuAll

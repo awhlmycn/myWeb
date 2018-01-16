@@ -1,10 +1,77 @@
 const express = require( 'express' );
 let router = express.Router();
-const runDao = require('../dao/proDao.js');
+const runDao = require('../dao/dbDao.js');
 const lele = require( '../tool/lele.js')
 const validate = require( 'validate.js' );
 const valJson = { presence: true };
+const logger = require( '../tool/log4.js').getLogger( 'log_router_gm' );
+
+const events = require( '../tool/event.js');
+
 module.exports = router;
+
+
+router.get('/his', function( req, res )
+{
+    events.emit( 'news', { 'hello':'his'});
+   
+    res.send( 'ok');
+});
+
+/**
+ * 1.账号登陆
+ * 这里要返回token [{ brandAll : 1 }] //代表全部门店
+ */
+router.all( '/gmLogin', async function( req, res )
+{
+    var data = lele.empty( req.query )? req.body : req.query;
+    if( lele.empty( data ) || validate( data, { mobile: valJson, pwd: vaJson } ) )
+    {
+        res.json( { 'errMsg' : data.toString() });
+        return
+    }
+    var mobile = data.mobile;
+    try{
+        var roleInfo = await runDao.select( 'gm_account', 'pwd,brand_list,role_id' );
+        if( roleInfo.length == 0 )
+        {
+            res.json( { 'errMsg' : '账号不存在' });
+            return;
+        }
+        roleInfo = roleInfo[0];
+        var clientPwd = lele.md5( data.pwd );
+        if( clientPwd != roleInfo.pwd )
+        {
+            res.json( { 'errMsg' : '密码不正确' });
+            return;
+        }
+        // 返回他所拥有的品牌
+        var brand_list = lele.empty( roleInfo.brand_list ) ? [] : JSON.stringify( roleInfo.brand_list );
+        var sql = '';
+        // 超级管理员
+        if( !lele.hasKey( brand_list, 'brandAll' ) )
+        {
+            sql = 'select brand_id,name from ch_brand';
+        }
+        else{
+            var tmpSql = [];
+            for( let i = 0; i < brand_list.length; i++ )
+            {
+                tmpSql.push( brand_list[ i ].brand_id );
+            }
+            sql = 'select brand_id,name from ch_brand where brand_id in(' + tmpSql.join( ',') + ')';
+        }
+        var brandArr = await runDao.query( sql );
+        res.json( brandArr );
+    }
+    catch( err )
+    {
+        logger.info( '[function-gmLogin-1]' + err.toString() );
+        res.json( { 'errMsg' : err.toString() });
+    }
+    
+    
+});
 
 /**
  * 1。查看品牌下面的所有门店
@@ -21,14 +88,16 @@ router.all( '/storeAll', async function( req, res )
     }
     try{
         var brand_id = data.brand_id;
-        var storeAll = await runDao.select( 'store', 'brand_id=' + brand_id, 'id,brand_id,name,opening_status');
+        var storeAll = await runDao.select( 'store', 'brand_id=' + brand_id, 'id,brand_id,name');
         res.json( storeAll );
     }
     catch( err )
     {
+        logger.info( '[ function-storeAll-1]:' + err );
         res.json( { 'errMsg' : err.toString() } );
     }
 });
+
 
 /**
  * 2.查看优惠券
@@ -91,40 +160,4 @@ router.all( '/coupon', async function( req, res )
 
 
 
-/**
- * 1.账号登陆
- * 这里要返回token
- */
-router.all( '/gmLogin', function( req, res )
-{
-    var data = lele.empty( req.query )? req.body : req.query;
-    if( lele.empty( data ) || validate( data, { mobile: valJson, pwd: vaJson } ) )
-    {
-        res.json( { 'errMsg' : 'brand_id没有传过来'});
-        return
-    }
-    var mobile = data.mobile;
-    try{
-        var roleInfo = await runDao.select( 'gm_account', 'pwd,brand_list,store_list,role_id' );
-        if( roleInfo.length == 0 )
-        {
-            res.json( { 'errMsg' : '账号不存在' });
-            return;
-        }
-        roleInfo = roleInfo[0];
-        var clientPwd = lele.md5( data.pwd );
-        if( clientPwd != roleInfo.pwd )
-        {
-            res.json( { 'errMsg' : '密码不正确' });
-            return;
-        }
-        // 返回他所拥有的品牌
-        
-    }
-    catch( err )
-    {
-        res.json( { 'errMsg' : err.toString() });
-    }
-    
-    
-});
+

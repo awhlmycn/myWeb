@@ -3,5 +3,6 @@
     "port" : "3306",
     "user" : "testadmin",
     "password" : "testadmin@2017",
-    "database" : "v3_cloud_test"
+    "database" : "v3_cloud_test",
+    "ceshiDataBase" : "v3_test"
 }
