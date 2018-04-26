@@ -1,0 +1,52 @@
+{
+  /**
+   * Application configuration section
+   * http://pm2.keymetrics.io/docs/usage/application-declaration/
+   */
+  apps : [
+        // First application
+        {
+            name      : 'API',
+            script    : 'app.js',
+            env: {
+                COMMON_VARIABLE: 'true'
+            },
+            env_production : {
+                NODE_ENV: 'production'
+            }
+        },
+
+        // Second application
+        {
+            name      : 'WEB',
+            script    : './bin/www'
+        }
+    ],
+
+    /**
+       * Deployment section
+       * http://pm2.keymetrics.io/docs/usage/deployment/
+       *  user : "登录远程服务器的用户名，此处填写我们创建的yishi",
+          host : "远程服务器的IP或hostname，此处可以是数组同步部署多个服务器，不过鉴于我们只有一个服务器，因此我们填写123.57.205.23",
+          ref  : "远端名称及分支名，此处填写origin/master",
+          repo : "git仓库地址，此处填写git@github.com:e10101/pm2app.git",
+          path : "远程服务器部署目录，需要填写user具备写入权限的目录，此处填写/home/yishi/www/production",
+          "post-deploy" : "部署后需要执行的命令，此处填写npm install && pm2 startOrRestart ecosystem.json --env production"
+          && pm2 reload ecosystem.config.js --env production
+    */
+    deploy : {
+        production : {
+            user : 'root',
+            host : '47.98.154.75',
+            ref  : 'origin/master',
+            repo : 'git@github.com:awhlmycn/myWeb.git',
+            path : '/home/temp/tmp',
+            'post-deploy' : 'npm install'
+        }
+     }
+}
+
+/**
+ *   scp ~/.ssh/id_rsa.pub root@47.98.154.75:/root/.ssh/authorized_keys
+
+ */
