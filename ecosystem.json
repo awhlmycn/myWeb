@@ -6,8 +6,8 @@
   apps : [
         // First application
         {
-            name      : 'API',
-            script    : 'app.js',
+            name      : 'myWeb',
+            script    : './bin/www',
             env: {
                 COMMON_VARIABLE: 'true'
             },
@@ -17,10 +17,10 @@
         },
 
         // Second application
-        {
-            name      : 'WEB',
-            script    : './bin/www'
-        }
+        // {
+        //     name      : 'WEB',
+        //     script    : './bin/www'
+        // }
     ],
 
     /**
