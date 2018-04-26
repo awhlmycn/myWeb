@@ -41,7 +41,7 @@
             ref  : 'origin/master',
             repo : 'git@github.com:awhlmycn/myWeb.git',
             path : '/home/temp/tmp',
-            'post-deploy' : 'npm install'
+            "post-deploy": "npm install && pm2 startOrRestart ecosystem.json --env production"
         }
      }
 }
