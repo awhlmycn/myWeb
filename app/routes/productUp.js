@@ -53,13 +53,3 @@ router.post( '/upFoodInfo', function( req, res )
         return;
     });
 });
-
-
-
-{ brandAll : 1 } //管理所有的品牌
-{ roleAll : 2 } //所有的职位
-{ storeAll : 1 } //代表所有的门店
-
-{ brand_id : 1, role_id : 1 } //当前的品牌 还有职位 ：
-
-{ store_id : 1 } //他所管理的门店 

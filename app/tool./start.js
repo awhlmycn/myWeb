@@ -30,6 +30,7 @@ start.run = function( app )
 start.router = function( app )
 {
     app.use( '/',  require( '../routes/index.js' ) );
+    app.use( '/gm',  require( '../routes/gm.js' ) );
     // 账号角色
     app.use( '/', function( req, res )
     {

@@ -8,6 +8,8 @@ const moment = require('moment');
 const valJson = { presence: true };
 module.exports = router;
 const request = require( 'request');
+const uuid = require('node-uuid');
+
 
 const formidable = require( 'formidable' );
 const fs = require( 'fs' );
@@ -19,7 +21,6 @@ const fs = require( 'fs' );
  * uuid.v1() -->基于时间戳生成 
  * uuid.v4();-->随机生成  ->这个有可能会有重复
  */
-const uuid = require('node-uuid');
 
 
 var component_appid = 'wxa31a6a54e5b6a0b6';
@@ -40,18 +41,6 @@ var getComponentAccessToken = function()
     {
         body = JSON.parse( body );
         console.log( " body ", body );
-        /**
-         * /错误
-         *  errcode: 61011,
-            errmsg: 'invalid component hint: [42yX809472994]' }
-         */
-        /*
-        正确的返回结果
-        {
-            "component_access_token":"61W3mEpU66027wgNZ_MhGHNQDHnFATkDa9-2llqrMBjUwxRSNPbVsMmyD-yq8wZETSoE5NQgecigDrSHkPtIYA", 
-            "expires_in":7200
-        }
-        */
     });
 }
 

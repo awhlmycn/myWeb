@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>文件的上传</title>
+	</head>
+	<body>
+		<form>
+			<input type="text" name="username" placeholder="用户名">
+			<input type="password" name="password" placeholder="密码">
+			<input type="file" name="file">
+			<button type="button" value="上传" onclick="sendForm()">上传</button>
+			<div></div>
+		</form>
+	</body>
+	<script type="text/javascript">
+		/**
+* Created by Administrator on 2017/04/09 0009.
+*/
+function sendForm(){
+var process = document.getElementsByTagName('div')[0];
+var file = formAll.children[2].files[0];
+var size = file.size;
+var name = file.name;
+var shardSize = 2*1024*1024;
+var total = Math.ceil(size/shardSize);
+var successed = 0;
+for(var i=0;i<total;i++){
+var start = i*shardSize;
+var end = (i+1)*shardSize>size?size:(i+1)*shardSize;
+var form = new FormData();
+form.append('name',name);
+form.append('total',total);
+form.append('data',file.slice(start,end));
+form.append('index',i);
+var xhr = new XMLHttpRequest();
+xhr.open('post','http://127.0.0.1:8999/gm/upload');
+xhr.send(form);
+xhr.onload=function(){
+++successed;
+console.log(successed);
+process.style.width = (successed/total)*100+"%";
+}
+}
+}
+var formAll = document.getElementsByTagName('form')[0];
+var uploadBtn = formAll.children[3];
+uploadBtn.onclick = sendForm;
+	</script>
+</html>
