@@ -20,5 +20,4 @@ myEmitterIns.on( 'news', function( data )
 myEmitterIns.on( 'do', function( data )
 {
     console.log( "1111", data );
-
 });

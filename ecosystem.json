@@ -1,18 +1,18 @@
 {
-  /**
-   * Application configuration section
-   * http://pm2.keymetrics.io/docs/usage/application-declaration/
-   */
-  apps : [
+    /**
+       * Application configuration section
+       * http://pm2.keymetrics.io/docs/usage/application-declaration/
+    */
+    "apps" : [
         // First application
         {
-            name      : 'myWeb',
-            script    : './bin/www',
-            env: {
-                COMMON_VARIABLE: 'true'
+            "name"  : "myWeb",
+            "script"   : "./bin/www",
+            "env": {
+                "COMMON_VARIABLE" : "true"
             },
-            env_production : {
-                NODE_ENV: 'production'
+            "env_production" : {
+               "NODE_ENV" : "production"
             }
         },
 
@@ -34,13 +34,13 @@
           "post-deploy" : "部署后需要执行的命令，此处填写npm install && pm2 startOrRestart ecosystem.json --env production"
           && pm2 reload ecosystem.config.js --env production
     */
-    deploy : {
-        production : {
-            user : 'root',
-            host : '47.98.154.75',
-            ref  : 'origin/master',
-            repo : 'git@github.com:awhlmycn/myWeb.git',
-            path : '/home/temp/tmp',
+    "deploy" : {
+        "production" : {
+            "user" : "root",
+            "host" : "47.98.154.75",
+            "ref"  : "origin/master",
+            "repo" : "git@github.com:awhlmycn/myWeb.git",
+            "path" : "/home/temp/tmp",
             "post-deploy": "npm install && pm2 startOrRestart ecosystem.json --env production"
         }
      }
