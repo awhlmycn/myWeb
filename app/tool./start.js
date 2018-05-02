@@ -6,7 +6,6 @@
 var start = module.exports;
 var mysqlPro = require( '../mysql/proMysql.js' );
 var mysqlConfig = require( '../../config/mysql.json' );
-var schedule = require( "node-schedule" );  
 //连接MySQL(mysql连接必须处于最优先)
 global.mysqlConfig = mysqlConfig;
 // global.db = new mysql( 100, 'database', mysqlConfig );
@@ -34,6 +33,7 @@ start.router = function( app )
 //定时器的启动
 function scheduleCronCycle()
 {
+    // var schedule = require( "node-schedule" );  
     schedule.scheduleJob( '0 0 0 * * *', function()
     {
         // child_process.exec( 'sh /home/data/mysqlBack.sh', function( result )

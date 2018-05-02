@@ -24,6 +24,75 @@ var ConvertToTable = function( data )
     return table;
 }
 
+
+
+router.all( '/upExcel', function( req, res ) {
+    res.render( 'upExcel.html' );
+});
+
+/**
+ *上传excel文件
+ */
+router.all( '/acceptExcel', function( req, res ) {
+    var form = new formidable.IncomingForm();
+    form.encoding = 'utf-8';
+    //设置文件临时放的位置
+    form.uploadDir = './app/public/tmpFile/';
+    //设置文件的接收大小
+    form.maxFieldsSize = 3000 * 1024 * 1024;
+    //保持文件的原名
+    form.keepExtensions = true;
+
+    var button = [];
+    //上传进度
+    // form.on('progress', function( bytesReceived, bytesExpected ) {
+    //     if( bytesExpected > 1 * 1024 * 1024 ) {
+    //         this.emit( 'error', '文件过大' );
+    //         return;
+    //     }
+    //     button.push( bytesReceived );
+    //     console.log( "bytesReceived", bytesReceived );
+    //     console.log( "bytesExpected" , bytesExpected );
+    // });
+
+    form.parse( req, function( err, files, file ) {
+        if( err ) {
+            console.log( "err" + err );
+           
+        }
+        var fileInfo = null;
+        for( key in file ) {
+            fileInfo = file[key];
+            break;
+        }
+        if( fileInfo.size > 1000 ) {
+            console.log(1111111111);
+        }
+        res.json({ code : 200 });
+        console.log( fileInfo);
+        // res.json( { code : 200 });
+    });
+    // form.on('end', function() {
+    //     console.log( button ); 
+    //     console.log('end');   
+    //     res.json({ code : 200 } );  
+    // }); 
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /*
     12. 上传csv文档
     只展示匹配到的玩家
@@ -35,7 +104,6 @@ router.all( '/upfile', function( req, res )
     form.uploadDir = './app/public/tmpFile/';    //设置上传目录
     form.keepExtensions = true;  //保留后缀
     form.maxFieldsSize = 20 * 1024 * 1024;   //文件大小
-    form.keepExtensions = true;  //文件保存为原来的名字
     form.parse( req, function( err, formData, files ) 
     {
         if( err ) 

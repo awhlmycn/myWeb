@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+	<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>excel文件上传</title>
+		<script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+		<!-- 表单提交的插件 ajaxSubmit() -->
+		<script src="http://malsup.github.io/min/jquery.form.min.js"></script>
+	</head>
+	<body>
+		<form method="post" enctype="multipart/form-data" id="mainForm" >
+			<input type="text" name="username" value="kilmy">
+			<input type="file" name="fileCont" />
+			<br />
+			<br />
+			<button type="submit" id="agreeUp">提交</button>
+		</form>
+	</body>
+	<script type="text/javascript">
+		//第一种的表单提交
+		// $("#mainForm").submit(function (envent)  
+		// {  
+		//     envent.preventDefault();  
+		      
+		//     var form = $(this);  
+		//     $.ajax({  
+		//         // type: form.attr("mathod"),  
+		//         data: form.serialize(),  
+		//         dataType: "json",  
+		//         beforeSend: function ()  
+		//         {  
+		//            return false; 
+		//         },  
+		//         success: function (data)  
+		//         {  
+		//            alert( 'ok'); 
+		//         }  
+		//     });  
+		// });  
+		// //需要用到 jquery.form 插件
+		$('#agreeUp').on('click', function() {
+		    // $('#mainForm').on('submit', function() {
+		        $('#mainForm').ajaxSubmit({
+		            type: 'post', // 提交方式 get/post
+		            url: 'http://127.0.0.1:8999/gm/acceptExcel', // 需要提交的 url
+		            // data: {
+		            //     'title': title,
+		            //     'content': content
+		            // },
+		            beforeSubmit:function(){
+		            	console.log(111111);
+		            	return true;
+		            },
+		            success: function(data) { // data 保存提交后返回的数据，一般为 json 数据
+		                // 此处可对 data 作相关处理
+		                alert('提交成功！');
+		                $(this).resetForm(); // 提交后重置表单
+		            }
+		        });
+		        return false; // 阻止表单自动提交事件
+		    // });
+		});
+	</script>
+</html>
