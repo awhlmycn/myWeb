@@ -4,11 +4,9 @@
  * 启动初始化参数 
  */
 var start = module.exports;
-
-var fs = require('fs');
-// var mysqlPro = require( '../mysql/mysql.js' );
 var mysqlPro = require( '../mysql/proMysql.js' );
 var mysqlConfig = require( '../../config/mysql.json' );
+var schedule = require( "node-schedule" );  
 //连接MySQL(mysql连接必须处于最优先)
 global.mysqlConfig = mysqlConfig;
 // global.db = new mysql( 100, 'database', mysqlConfig );
@@ -29,21 +27,9 @@ start.run = function( app )
 //加载路由
 start.router = function( app )
 {
-    app.use( '/',  require( '../routes/index.js' ) );
     app.use( '/gm',  require( '../routes/gm.js' ) );
-    // 账号角色
-    app.use( '/', function( req, res )
-    {
-        res.send( '页面不存在');
-    });
 };
 
-//启动定时程序(加载微信公众token)
-start.wxTimer = function()
-{
-   //启动每日定时器
-   // scheduleCronCycle();
-};
 
 //定时器的启动
 function scheduleCronCycle()
