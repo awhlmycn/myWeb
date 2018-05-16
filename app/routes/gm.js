@@ -43,7 +43,7 @@ router.all( '/acceptExcel', function( req, res ) {
     //保持文件的原名
     form.keepExtensions = true;
 
-    var button = [];
+    // var button = [];
     //上传进度
     // form.on('progress', function( bytesReceived, bytesExpected ) {
     //     if( bytesExpected > 1 * 1024 * 1024 ) {
