@@ -8,13 +8,18 @@
 		<script src="http://malsup.github.io/min/jquery.form.min.js"></script>
 	</head>
 	<body>
-		<form method="post" enctype="multipart/form-data" id="mainForm" >
+		<form method="post" action="http://localhost:7001/upExcel" enctype="multipart/form-data">
+			<input type="file" name="">
+			<input type="text" value="111111111">
+			<button type="submit">提交</button>
+		</form>
+		<!-- <form method="post" action="http://127.0.0.1:7001/upExcel" enctype="multipart/form-data" id="mainForm" >
 			<input type="text" name="username" value="kilmy">
 			<input type="file" name="fileCont" />
 			<br />
 			<br />
 			<button type="submit" id="agreeUp">提交</button>
-		</form>
+		</form> -->
 	</body>
 	<script type="text/javascript">
 		//第一种的表单提交
@@ -38,27 +43,36 @@
 		//     });  
 		// });  
 		// //需要用到 jquery.form 插件
-		$('#agreeUp').on('click', function() {
-		    // $('#mainForm').on('submit', function() {
-		        $('#mainForm').ajaxSubmit({
-		            type: 'post', // 提交方式 get/post
-		            url: 'http://127.0.0.1:7001/acceptExcel', // 需要提交的 url
-		            // data: {
-		            //     'title': title,
-		            //     'content': content
-		            // },
-		            beforeSubmit:function(){
-		            	console.log(111111);
-		            	return true;
-		            },
-		            success: function(data) { // data 保存提交后返回的数据，一般为 json 数据
-		                // 此处可对 data 作相关处理
-		                alert('提交成功！');
-		                $(this).resetForm(); // 提交后重置表单
-		            }
-		        });
-		        return false; // 阻止表单自动提交事件
-		    // });
-		});
+		// $('#agreeUp').on('click', function() {
+		//     // $('#mainForm').on('submit', function() {
+		//         $('#mainForm').ajaxSubmit({
+		//             type: 'post', // 提交方式 get/post
+		//             url: 'http://127.0.0.1:7001/upExcel', // 需要提交的 url
+		//             header:
+		// 					   { host: '127.0.0.1:7001',
+		// 					     connection: 'keep-alive',
+		// 					     'cache-control': 'max-age=0',
+		// 					     'upgrade-insecure-requests': '1',
+		// 					     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36',
+		// 					     accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+		// 					     'accept-encoding': 'gzip, deflate, br',
+		// 					     'accept-language': 'zh-CN,zh;q=0.9' },
+		//             // data: {
+		//             //     'title': title,
+		//             //     'content': content
+		//             // },
+		//             beforeSubmit:function(){
+		//             	console.log(111111);
+		//             	return true;
+		//             },
+		//             success: function(data) { // data 保存提交后返回的数据，一般为 json 数据
+		//                 // 此处可对 data 作相关处理
+		//                 alert('提交成功！');
+		//                 $(this).resetForm(); // 提交后重置表单
+		//             }
+		//         });
+		//         return false; // 阻止表单自动提交事件
+		//     // });
+		// });
 	</script>
 </html>
