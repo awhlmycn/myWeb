@@ -18,7 +18,7 @@ const roleDao = require( '../dao/roleDao.js');
 start.run = function( app )
 {
     // 缓存数据库的基本信息
-    roleDao.startCache();
+    // roleDao.startCache();
     //加载路由
     start.router( app );
 };
